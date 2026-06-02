@@ -495,6 +495,105 @@ function LocationPage() {
           </div>
 
           <div
+            style={{
+              marginTop: '32px',
+            }}
+          >
+            <div
+              className="section-label"
+              style={{
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  backgroundColor: 'var(--color-cyan)',
+                }}
+              />
+              STATIONED UNITS
+            </div>
+
+            {robots.length === 0 ? (
+              <div className="empty-state">
+                NO UNITS STATIONED HERE
+              </div>
+            ) : (
+              <div className="robot-stats-grid">
+                {robots.map((robot) => (
+                  <div
+                    key={robot._id}
+                    className="card card-interactive"
+                    onClick={() => window.location.href = `/robot/${robot._id}`}
+                    style={{
+                      borderLeft: '2px solid var(--color-cyan)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-headline)',
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          color: 'var(--color-text-primary)',
+                        }}
+                      >
+                        {robot.name}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '11px',
+                          color: 'var(--color-cyan)',
+                          border: '1px solid var(--color-cyan)',
+                          padding: '2px 8px',
+                        }}
+                      >
+                        {robot.robotId}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '14px',
+                          color: 'var(--color-text-primary)',
+                        }}
+                      >
+                        {Math.round(robot.totalDistance || 0).toLocaleString()} <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>m</span>
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: 'var(--font-headline)',
+                          fontSize: '10px',
+                          color: 'var(--color-text-secondary)',
+                          letterSpacing: '0.1em',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        DISTANCE
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div
             className="card"
             style={{
               padding: '24px',

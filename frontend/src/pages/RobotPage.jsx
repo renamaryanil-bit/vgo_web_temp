@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import StatusIndicator from '../components/StatusIndicator';
 import DistanceChart from '../components/DistanceChart';
 import RideTable from '../components/RideTable';
 import LoadingScreen from '../components/LoadingScreen';
@@ -202,7 +201,6 @@ function RobotPage() {
               >
                 {robot.robotId}
               </span>
-              <StatusIndicator status={robot.status} size="md" />
             </div>
             <h1 style={{ fontSize: '32px', fontWeight: 700, margin: 0 }}>
               {robot.name}

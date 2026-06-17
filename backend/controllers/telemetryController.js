@@ -1,5 +1,7 @@
+const { supabase } = require('../db');
 const Robot = require('../models/Robot');
 const Ride = require('../models/Ride');
+const { toCamelCase } = require('../utils/caseConverter');
 
 // POST /api/telemetry
 async function ingestRide(req, res) {
@@ -11,37 +13,42 @@ async function ingestRide(req, res) {
     }
 
     // Find the robot by its string robotId (e.g. 'VGO-001')
-    const robot = await Robot.findOne({ robotId });
+    const robot = await Robot.findOne({ robot_id: robotId });
     if (!robot) {
       return res.status(404).json({ error: `Robot '${robotId}' not found` });
     }
 
     // Create the ride
     const ride = await Ride.create({
-      robot: robot._id,
-      location: robot.location,
-      startTime: startTime || new Date(),
-      endTime: endTime || null,
+      robot_id: robot.id,
+      location_id: robot.location_id,
+      start_time: startTime || new Date().toISOString(),
+      end_time: endTime || null,
       distance: distance || 0,
-      encoderTicks: encoderTicks || 0,
+      encoder_ticks: encoderTicks || 0,
       status: status || 'completed',
     });
 
     // Update robot's cumulative distance, lastActive, and status
-    robot.totalDistance += (distance || 0);
-    robot.lastActive = new Date();
+    const updateData = {
+      total_distance: robot.total_distance + (distance || 0),
+      last_active: new Date().toISOString(),
+    };
     if (status === 'in_progress') {
-      robot.status = 'active';
+      updateData.status = 'active';
     }
-    await robot.save();
+    await Robot.updateById(robot.id, updateData);
 
-    // Populate and return
-    const populated = await Ride.findById(ride._id)
-      .populate('robot', 'robotId name')
-      .populate('location', 'name code')
-      .lean();
+    // Fetch the ride with joined robot + location data for the response
+    const { data: populated, error: popErr } = await supabase
+      .from('rides')
+      .select('*, robot:robots(robot_id, name), location:locations(name, code)')
+      .eq('id', ride.id)
+      .single();
 
-    res.status(201).json(populated);
+    if (popErr) throw popErr;
+
+    res.status(201).json(toCamelCase(populated));
   } catch (error) {
     console.error('[telemetryController] ingestRide error:', error.message);
     res.status(500).json({ error: error.message });

@@ -12,8 +12,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mongoose": "^9.6.2",
-    "mongodb-memory-server": "^10.4.0"
+    "@supabase/supabase-js": "^2.49.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

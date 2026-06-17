@@ -131,7 +131,7 @@ function DashboardPage() {
             <div className="locations-grid">
               {locations.map((loc) => (
                 <LocationCard
-                  key={loc._id}
+                  key={loc.id}
                   location={loc}
                 />
               ))}

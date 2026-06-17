@@ -1,28 +1,29 @@
+const { supabase } = require('../db');
 const Location = require('../models/Location');
 const Robot = require('../models/Robot');
 const Ride = require('../models/Ride');
+const { toCamelCase } = require('../utils/caseConverter');
 
 // GET /api/dashboard/summary
 async function getSummary(req, res) {
   try {
-    const [totalLocations, totalRobots, activeRobots, distanceAgg, totalRides, recentRides] =
+    const [totalLocations, totalRobots, activeRobots, totalDistance, totalRides] =
       await Promise.all([
-        Location.countDocuments(),
-        Robot.countDocuments(),
-        Robot.countDocuments({ status: 'active' }),
-        Robot.aggregate([
-          { $group: { _id: null, total: { $sum: '$totalDistance' } } },
-        ]),
-        Ride.countDocuments(),
-        Ride.find()
-          .sort({ startTime: -1 })
-          .limit(5)
-          .populate('robot', 'robotId name')
-          .populate('location', 'name code')
-          .lean(),
+        Location.count(),
+        Robot.count(),
+        Robot.countByStatus('active'),
+        Robot.sumTotalDistance(),
+        Ride.count(),
       ]);
 
-    const totalDistance = distanceAgg.length > 0 ? distanceAgg[0].total : 0;
+    // Recent rides with robot + location info via Supabase join syntax
+    const { data: recentRides, error: ridesErr } = await supabase
+      .from('rides')
+      .select('*, robot:robots(robot_id, name), location:locations(name, code)')
+      .order('start_time', { ascending: false })
+      .limit(5);
+
+    if (ridesErr) throw ridesErr;
 
     res.json({
       totalLocations,
@@ -30,7 +31,7 @@ async function getSummary(req, res) {
       activeRobots,
       totalDistance: Math.round(totalDistance * 100) / 100,
       totalRides,
-      recentRides,
+      recentRides: toCamelCase(recentRides),
     });
   } catch (error) {
     console.error('[dashboardController] getSummary error:', error.message);

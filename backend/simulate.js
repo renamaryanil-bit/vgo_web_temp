@@ -125,7 +125,7 @@ async function runSimulator() {
         log(
           'green',
           'ACK',
-          `Telemetry locked! Server updated Unit cumulative distance. (New ride ID: ${response._id})`
+          `Telemetry locked! Server updated Unit cumulative distance. (New ride ID: ${response.id})`
         );
         log('cyan', 'SIMULATOR', '---------------------------------------------------------');
       } catch (err) {

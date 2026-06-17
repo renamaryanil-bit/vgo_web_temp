@@ -1,4 +1,4 @@
-const { connectDB, disconnectDB } = require('./db');
+const { supabase } = require('./db');
 const Location = require('./models/Location');
 const Robot = require('./models/Robot');
 const Ride = require('./models/Ride');
@@ -26,11 +26,11 @@ function log(color, tag, msg) {
 // ── Seed Data ────────────────────────────────────────────────────────
 
 const LOCATIONS = [
-  { name: 'London GP', code: 'LDN', address: 'London, United Kingdom', isActive: true },
-  { name: 'Tokyo Ring', code: 'TKY', address: 'Tokyo, Japan', isActive: true },
-  { name: 'Monaco Bay', code: 'MNC', address: 'Monte Carlo, Monaco', isActive: true },
-  { name: 'Singapore Circuit', code: 'SGP', address: 'Singapore', isActive: true },
-  { name: 'Austin Speed', code: 'AUS', address: 'Austin, Texas, USA', isActive: false },
+  { name: 'London GP', code: 'LDN', address: 'London, United Kingdom', is_active: true },
+  { name: 'Tokyo Ring', code: 'TKY', address: 'Tokyo, Japan', is_active: true },
+  { name: 'Monaco Bay', code: 'MNC', address: 'Monte Carlo, Monaco', is_active: true },
+  { name: 'Singapore Circuit', code: 'SGP', address: 'Singapore', is_active: true },
+  { name: 'Austin Speed', code: 'AUS', address: 'Austin, Texas, USA', is_active: false },
 ];
 
 const ROBOT_NAMES = [
@@ -43,20 +43,14 @@ const STATUSES = ['active', 'active', 'active', 'idle', 'idle', 'idle', 'idle', 
 
 // ── Main ─────────────────────────────────────────────────────────────
 
-async function seed(skipConnect = false) {
+async function seed() {
   log('cyan', 'SEED', 'Starting database seed...');
 
-  if (!skipConnect) {
-    await connectDB();
-  }
-
-  // Clear existing data
-  await Promise.all([
-    Location.deleteMany({}),
-    Robot.deleteMany({}),
-    Ride.deleteMany({}),
-  ]);
-  log('yellow', 'SEED', 'Cleared all collections');
+  // Clear existing data (rides first due to foreign keys)
+  await Ride.deleteAll();
+  await Robot.deleteAll();
+  await Location.deleteAll();
+  log('yellow', 'SEED', 'Cleared all tables');
 
   // Create locations
   const locations = await Location.insertMany(LOCATIONS);
@@ -70,12 +64,12 @@ async function seed(skipConnect = false) {
     for (let i = 0; i < 3; i++) {
       const num = String(robotIndex + 1).padStart(3, '0');
       robotDocs.push({
-        robotId: `VGO-${num}`,
+        robot_id: `VGO-${num}`,
         name: `VGO ${num}`,
-        location: loc._id,
+        location_id: loc.id,
         status: pick(STATUSES),
-        totalDistance: 0,
-        lastActive: new Date(),
+        total_distance: 0,
+        last_active: new Date().toISOString(),
       });
       robotIndex++;
     }
@@ -116,12 +110,12 @@ async function seed(skipConnect = false) {
       const rideStatus = Math.random() < 0.08 ? 'aborted' : 'completed';
 
       rides.push({
-        robot: robot._id,
-        location: robot.location,
-        startTime: rideStart,
-        endTime: rideEnd,
+        robot_id: robot.id,
+        location_id: robot.location_id,
+        start_time: rideStart.toISOString(),
+        end_time: rideEnd.toISOString(),
         distance,
-        encoderTicks: ticks,
+        encoder_ticks: ticks,
         status: rideStatus,
       });
     }
@@ -131,15 +125,15 @@ async function seed(skipConnect = false) {
     // Update robot's totalDistance to actual sum
     const totalDist = rides.reduce((sum, r) => sum + r.distance, 0);
     const latestRide = rides.reduce((latest, r) =>
-      r.startTime > latest.startTime ? r : latest, rides[0]);
+      new Date(r.start_time) > new Date(latest.start_time) ? r : latest, rides[0]);
 
-    await Robot.findByIdAndUpdate(robot._id, {
-      totalDistance: Math.round(totalDist * 100) / 100,
-      lastActive: latestRide.endTime || latestRide.startTime,
+    await Robot.updateById(robot.id, {
+      total_distance: Math.round(totalDist * 100) / 100,
+      last_active: latestRide.end_time || latestRide.start_time,
     });
 
     totalRides += numRides;
-    log('magenta', 'SEED', `  ${robot.robotId} (${robot.name}): ${numRides} rides, ${Math.round(totalDist)}m total`);
+    log('magenta', 'SEED', `  ${robot.robot_id} (${robot.name}): ${numRides} rides, ${Math.round(totalDist)}m total`);
   }
 
   log('green', 'SEED', `Created ${totalRides} rides total`);
@@ -151,18 +145,15 @@ async function seed(skipConnect = false) {
   log('cyan', 'SEED', `  Robots    : ${robots.length}`);
   log('cyan', 'SEED', `  Rides     : ${totalRides}`);
   log('cyan', 'SEED', '────────────────────────────────────');
-
-  if (!skipConnect) {
-    await disconnectDB();
-    process.exit(0);
-  }
 }
 
 module.exports = seed;
 
 if (require.main === module) {
-  seed().catch((err) => {
-    console.error('\x1b[31m[SEED]\x1b[0m Fatal error:', err);
-    process.exit(1);
-  });
+  seed()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('\x1b[31m[SEED]\x1b[0m Fatal error:', err);
+      process.exit(1);
+    });
 }

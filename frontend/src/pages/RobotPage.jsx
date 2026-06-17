@@ -166,7 +166,7 @@ function RobotPage() {
           <span style={{ color: 'var(--color-text-muted)' }}>/</span>
           {robot.location && (
             <>
-              <Link to={`/location/${robot.location._id}`} style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}>
+              <Link to={`/location/${robot.location.id}`} style={{ color: 'var(--color-text-secondary)', textDecoration: 'none' }}>
                 STATION: {robot.location.name}
               </Link>
               <span style={{ color: 'var(--color-text-muted)' }}>/</span>
@@ -215,7 +215,7 @@ function RobotPage() {
               textAlign: 'right',
             }}
           >
-            SYS_IDENTIFIER: <span style={{ color: 'var(--color-text-primary)' }}>{robot._id}</span>
+            SYS_IDENTIFIER: <span style={{ color: 'var(--color-text-primary)' }}>{robot.id}</span>
             <br />
             LAST LOG: <span style={{ color: 'var(--color-text-primary)' }}>{formattedLastActive}</span>
           </div>
@@ -256,7 +256,7 @@ function RobotPage() {
           <div className="card">
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '20px', fontWeight: 600, color: 'var(--color-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {robot.location ? (
-                <Link to={`/location/${robot.location._id}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'none' }}>
+                <Link to={`/location/${robot.location.id}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'none' }}>
                   {robot.location.name}
                 </Link>
               ) : (

@@ -86,7 +86,7 @@ function RideTable({ rides = [], loading = false }) {
         </thead>
         <tbody>
           {rides.map((ride, index) => (
-            <tr key={ride._id || index}>
+            <tr key={ride.id || index}>
               <td style={{ color: 'var(--color-text-muted)' }}>{index + 1}</td>
               <td>{formatDate(ride.startTime)}</td>
               <td>{formatDate(ride.endTime)}</td>

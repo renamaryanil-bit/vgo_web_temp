@@ -526,9 +526,9 @@ function LocationPage() {
               <div className="robot-stats-grid">
                 {robots.map((robot) => (
                   <div
-                    key={robot._id}
+                    key={robot.id}
                     className="card card-interactive"
-                    onClick={() => window.location.href = `/robot/${robot._id}`}
+                    onClick={() => window.location.href = `/robot/${robot.id}`}
                     style={{
                       borderLeft: '2px solid var(--color-cyan)',
                       display: 'flex',

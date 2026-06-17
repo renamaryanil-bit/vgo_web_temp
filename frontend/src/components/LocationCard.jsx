@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 function LocationCard({ location }) {
   const navigate = useNavigate();
   const {
-    _id,
+    id,
     name,
     code,
     robotCount = 0,
@@ -17,7 +17,7 @@ function LocationCard({ location }) {
   return (
     <div
       className="card card-interactive"
-      onClick={() => navigate(`/location/${_id}`)}
+      onClick={() => navigate(`/location/${id}`)}
       style={{
         borderLeft: '2px solid var(--color-cyan)',
         cursor: 'pointer',

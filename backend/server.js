@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('./db');
+
+// Initialize Supabase client (imported for side-effect: validates env vars)
+require('./db');
 
 const locationRoutes = require('./routes/locationRoutes');
 const robotRoutes = require('./routes/robotRoutes');
@@ -28,16 +30,14 @@ app.get('/api/health', (req, res) => {
 
 // Start
 async function start() {
-  await connectDB();
-  
-  // Auto-seed if database is empty (common for in-memory MongoDB boots)
+  // Auto-seed if database is empty
   try {
     const Robot = require('./models/Robot');
-    const robotCount = await Robot.countDocuments();
+    const robotCount = await Robot.count();
     if (robotCount === 0) {
-      console.log('\x1b[33m[SERVER]\x1b[0m In-memory datastore is empty. Executing auto-seed...');
+      console.log('\x1b[33m[SERVER]\x1b[0m Database is empty. Executing auto-seed...');
       const seed = require('./seed');
-      await seed(true); // skipConnect = true since mongoose is already connected
+      await seed();
       console.log('\x1b[32m[SERVER]\x1b[0m Database auto-seeded successfully!');
     }
   } catch (seedErr) {

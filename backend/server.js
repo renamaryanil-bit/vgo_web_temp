@@ -44,9 +44,9 @@ async function start() {
     console.error('\x1b[31m[SERVER]\x1b[0m Auto-seed failed:', seedErr.message);
   }
 
-  app.listen(PORT, () => {
-    console.log(`\x1b[32m[SERVER]\x1b[0m Running on http://localhost:${PORT}`);
-  });
+  app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
 }
 
 start();

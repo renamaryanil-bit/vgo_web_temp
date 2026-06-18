@@ -1,7 +1,3 @@
--- ============================================================
--- VGO Robot Telemetry — Supabase PostgreSQL Schema
--- Run this in the Supabase Dashboard SQL Editor
--- ============================================================
 
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

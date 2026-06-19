@@ -28,9 +28,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get("/", (req, res) => {
-  res.send("Server is alive");
-});
 
 // Start
 async function start() {
@@ -50,10 +47,6 @@ async function start() {
 
   console.log("PORT ENV =", process.env.PORT);
 
-  console.log({
-  PORT: process.env.PORT,
-  NODE_ENV: process.env.NODE_ENV
-});
 
   app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);

@@ -48,6 +48,8 @@ async function start() {
     console.error('\x1b[31m[SERVER]\x1b[0m Auto-seed failed:', seedErr.message);
   }
 
+  console.log("PORT ENV =", process.env.PORT);
+
   app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

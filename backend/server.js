@@ -28,6 +28,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get("/", (req, res) => {
+  res.send("Server is alive");
+});
+
 // Start
 async function start() {
   // Auto-seed if database is empty
@@ -47,6 +51,7 @@ async function start() {
   app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 }
 
 start();
